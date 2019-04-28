@@ -110,10 +110,9 @@ EXPORT_SYMBOL_GPL(irq_work_queue);
 bool irq_work_needs_cpu(void)
 {
 	struct llist_head *raised, *lazy;
-
 	raised = &__get_cpu_var(raised_list);
 	lazy = &__get_cpu_var(lazy_list);
-	if (llist_empty_relaxed(raised) && llist_empty_relaxed(lazy))
+	if (llist_empty(raised) && llist_empty(lazy))
 		return false;
 
 	/* All work should have been flushed before going offline */
@@ -130,7 +129,7 @@ static void irq_work_run_list(struct llist_head *list)
 
 	BUG_ON(!irqs_disabled());
 
-	if (llist_empty_relaxed(list))
+	if (llist_empty(list))
 		return;
 
 	llnode = llist_del_all(list);
